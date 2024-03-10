@@ -7,7 +7,7 @@ import {
   UserNotFoundError,
   login,
   register,
-  removeSessionCookie,
+  logout as logoutUser,
   validateSessionCookie,
 } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -71,7 +71,7 @@ export async function registerUser(formData: FormData) {
   try {
     await register(email, password);
     revalidatePath("/");
-    redirect("/");
+    // redirect("/");
   } catch (e) {
     console.log("error", e);
     return "Error registering user";
@@ -79,7 +79,7 @@ export async function registerUser(formData: FormData) {
 }
 
 export async function logout() {
-  await removeSessionCookie();
+  logoutUser();
   revalidatePath("/");
   redirect("/");
 }
@@ -98,97 +98,15 @@ export async function validate() {
   }
 }
 
-export async function createList(formData: FormData) {
-  const title = formData.get("title") as string;
-  const isPublic = formData.get("public") === "on";
-  const description = formData.get("description") as string;
-  const userId = await validateSessionCookie();
-  await prisma.list.create({
-    data: {
-      title: title,
-      userId: userId,
-      private: !isPublic,
-      description: description,
-    },
-  });
-  revalidatePath("/");
-}
-
-export async function getLists(userId: number) {
-  return prisma.list.findMany({
+export async function getUser(userId: string) {
+  return await prisma.user.findUnique({
     where: {
-      userId,
+      id: userId,
     },
-    include: {
-      items: true,
-    },
-  });
-}
-
-export async function addItem(formData: FormData) {
-  const title = formData.get("new-item") as string;
-  const listId = parseInt(formData.get("listId") as string);
-  const maxOrder = await prisma.item.findFirst({
-    where: {
-      listId,
-    },
-    orderBy: {
-      order: "desc",
-    },
-  });
-  await prisma.item.create({
-    data: {
-      content: title,
-      listId: listId,
-      order: maxOrder ? maxOrder.order + 1 : 1,
-    },
-  });
-  revalidatePath("/");
-}
-
-export async function swapItems(firstItemId: number, secondItemId: number) {
-  const firstItem = await prisma.item.findUnique({
-    where: {
-      id: firstItemId,
-    },
-  });
-  const secondItem = await prisma.item.findUnique({
-    where: {
-      id: secondItemId,
-    },
-  });
-  if (firstItem && secondItem) {
-    const firstOrder = firstItem.order;
-    firstItem.order = secondItem.order;
-    secondItem.order = firstOrder;
-    await prisma.item.update({
-      where: {
-        id: firstItemId,
-      },
-      data: firstItem,
-    });
-    await prisma.item.update({
-      where: {
-        id: secondItemId,
-      },
-      data: secondItem,
-    });
-  }
-  revalidatePath("/");
-}
-
-export async function updateListCoordinates(
-  listId: number,
-  x: number,
-  y: number
-) {
-  await prisma.list.update({
-    where: {
-      id: listId,
-    },
-    data: {
-      x: x,
-      y: y,
+    select: {
+      email: true,
+      id: true,
+      name: true,
     },
   });
 }

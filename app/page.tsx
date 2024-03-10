@@ -1,7 +1,5 @@
-import LoginForm from "@/components/Login";
-import DnD from "@/components/dnd/DnD";
-import { getLists, validate } from "./actions";
-import TransformContextProvider from "@/components/canvas/TransformProvider";
+import LoginForm from "@/components/login";
+import { getUser, validate } from "./actions";
 
 export default async function Home() {
   const { loggedIn, userId } = await validate();
@@ -17,13 +15,12 @@ export default async function Home() {
     throw new Error("No user ID");
   }
 
-  const lists = await getLists(userId);
+  const user = await getUser(userId);
 
   return (
-    <main className="h-screen w-screen">
-      <TransformContextProvider>
-        <DnD lists={lists} />
-      </TransformContextProvider>
+    <main className="h-screen w-screen flex flex-col items-center justify-center">
+      <h1 className="text-2xl font-bold">Starter App Template</h1>
+      <p>Welcome, {user?.email}</p>
     </main>
   );
 }

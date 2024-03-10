@@ -11,14 +11,19 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Register() {
+  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   async function handleRegister(formData: FormData) {
     console.log("registering");
     const errorMessage = await registerUser(formData);
-    if (!errorMessage) return;
+    if (!errorMessage) {
+      router.push("/");
+      return;
+    }
     setErrorMessage(errorMessage);
   }
 

@@ -52,7 +52,7 @@ export async function register(email: string, password: string) {
   return user.id;
 }
 
-export async function saveSessionCookie(userId: number) {
+export async function saveSessionCookie(userId: string) {
   const session = await prisma.session.create({
     data: {
       userId: userId,
@@ -70,8 +70,24 @@ export async function saveSessionCookie(userId: number) {
   console.log("session", session.id);
 }
 
-export async function removeSessionCookie() {
+async function removeSessionCookie() {
   cookies().delete("session");
+}
+
+export async function logout() {
+  const sessionId = cookies().get("session");
+
+  if (!sessionId) {
+    return;
+  }
+
+  await prisma.session.delete({
+    where: {
+      id: sessionId.value,
+    },
+  });
+
+  removeSessionCookie();
 }
 
 export async function validateSessionCookie() {

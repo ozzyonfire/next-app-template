@@ -1,8 +1,7 @@
 import { validate } from "@/app/actions";
-import Logout from "../Logout";
-import NewListButton from "./NewListButton";
-import { ModeToggle } from "./ModeToggle";
-import RegisterButton from "./RegisterButton";
+import Logout from "../logout";
+import { ModeToggle } from "./mode-toggle";
+import RegisterButton from "./register-button";
 
 export default async function Menu(props: { children?: React.ReactNode }) {
   const { children } = props;
@@ -13,7 +12,6 @@ export default async function Menu(props: { children?: React.ReactNode }) {
       {children}
       <div className="flex-grow" />
       <div className="flex gap-2 items-center">
-        <NewListButton />
         {loggedIn ? <Logout /> : <RegisterButton />}
         <ModeToggle />
       </div>

@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "List" ADD COLUMN     "x" INTEGER,
-ADD COLUMN     "y" INTEGER;
